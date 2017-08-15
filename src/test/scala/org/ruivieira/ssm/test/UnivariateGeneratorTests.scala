@@ -15,20 +15,24 @@
 package org.ruivieira.ssm.test
 
 import breeze.linalg.DenseVector
-import org.ruivieira.ssm.{Generator, StateGenerator, Structure}
+import org.ruivieira.ssm.univariate.{
+  StateGenerator,
+  UnivariateGenerator,
+  UnivariateStructure
+}
 import org.scalatest.{FlatSpec, Matchers}
 
-class GeneratorTests extends FlatSpec with Matchers {
+class UnivariateGeneratorTests extends FlatSpec with Matchers {
 
   "Generated state list" should "have correct size" in {
 
     val nobs = 1000
 
-    val structure = Structure.createLocallyConstant()
+    val structure = UnivariateStructure.createLocallyConstant()
 
     val states = StateGenerator.states(nobs = nobs,
-                                  structure = structure,
-                                  state0 = DenseVector.zeros[Double](1))
+                                       structure = structure,
+                                       state0 = DenseVector.zeros[Double](1))
 
     assert(states.size == nobs)
 
@@ -38,14 +42,16 @@ class GeneratorTests extends FlatSpec with Matchers {
 
     val nobs = 1000
 
-    val structure = Structure.createLocallyConstant()
+    val structure = UnivariateStructure.createLocallyConstant()
 
     val states = StateGenerator.states(nobs = nobs,
-                                  structure = structure,
-                                  state0 = DenseVector.zeros[Double](1))
+                                       structure = structure,
+                                       state0 = DenseVector.zeros[Double](1))
 
     val observations =
-      Generator.gaussian(states = states, structure = structure, V = 1.2)
+      UnivariateGenerator.gaussian(states = states,
+                                   structure = structure,
+                                   V = 1.2)
 
     assert(observations.size == nobs)
 
@@ -55,14 +61,14 @@ class GeneratorTests extends FlatSpec with Matchers {
 
     val nobs = 100
 
-    val structure = Structure.createLocallyConstant()
+    val structure = UnivariateStructure.createLocallyConstant()
 
     val states = StateGenerator.states(nobs = nobs,
-                                  structure = structure,
-                                  state0 = DenseVector.zeros[Double](1))
+                                       structure = structure,
+                                       state0 = DenseVector.zeros[Double](1))
 
     val observations =
-      Generator.poisson(states = states, structure = structure)
+      UnivariateGenerator.poisson(states = states, structure = structure)
 
     assert(observations.size == nobs)
 
@@ -72,15 +78,16 @@ class GeneratorTests extends FlatSpec with Matchers {
 
     val nobs = 1000
 
-    val structure = Structure.createLocallyConstant()
+    val structure = UnivariateStructure.createLocallyConstant()
 
     val states = StateGenerator.states(nobs = nobs,
-                                  structure = structure,
-                                  state0 = DenseVector.zeros[Double](1))
+                                       structure = structure,
+                                       state0 = DenseVector.zeros[Double](1))
 
-    val observations = Generator.binomial(states = states,
-                                          structure = structure,
-                                          categories = 1)
+    val observations =
+      UnivariateGenerator.binomial(states = states,
+                                   structure = structure,
+                                   categories = 1)
 
     assert(observations.size == nobs)
 

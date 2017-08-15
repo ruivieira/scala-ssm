@@ -12,19 +12,20 @@
  * limitations under the License.
  */
 
-package org.ruivieira.ssm
+package org.ruivieira.ssm.univariate
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.MultivariateGaussian
+import org.ruivieira.ssm.common.Structure
 
 object StateGenerator {
 
   /**
     * Generates an [[Array]] of states corresponding to a DGLM with
-    * the specified [[Structure]].
+    * the specified [[UnivariateStructure]].
     *
     * @param nobs The number of observations to generate
-    * @param structure The model's [[Structure]]
+    * @param structure The model's [[UnivariateStructure]]
     * @param state0 The initial state as a [[DenseVector]]
     * @return An [[Array]] of [[DenseVector]] states
     */
@@ -35,10 +36,10 @@ object StateGenerator {
     val states = Array.ofDim[DenseVector[Double]](nobs + 1)
     states(0) = state0
 
-    (1 to nobs).foreach(
-      t =>
-        states(t) = MultivariateGaussian(mean = structure.G * states(t - 1),
-                                         covariance = structure.W).sample())
+    (1 to nobs).foreach { t =>
+      states(t) = MultivariateGaussian(mean = structure.G * states(t - 1),
+                                       covariance = structure.W).sample()
+    }
 
     // drop the state prior
     states.drop(1)

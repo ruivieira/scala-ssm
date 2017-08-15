@@ -12,22 +12,25 @@
  * limitations under the License.
  */
 
-package org.ruivieira.ssm
+package org.ruivieira.ssm.univariate
 
 import breeze.linalg.{DenseMatrix, DenseVector}
+import org.ruivieira.ssm.MatrixUtils
+import org.ruivieira.ssm.common.Structure
 
-case class Structure(F: DenseMatrix[Double],
-                     G: DenseMatrix[Double],
-                     W: DenseMatrix[Double]) {
+case class UnivariateStructure(F: DenseMatrix[Double],
+                               G: DenseMatrix[Double],
+                               W: DenseMatrix[Double])
+    extends Structure {
 
   /**
-    * Combine two [[Structure]] into a single one
+    * Combine two [[UnivariateStructure]] into a single one
     *
-    * @param that Another [[Structure]]
-    * @return A combined [[Structure]]
+    * @param that Another [[UnivariateStructure]]
+    * @return A combined [[UnivariateStructure]]
     */
-  def +(that: Structure): Structure = {
-    new Structure(
+  def +(that: UnivariateStructure): UnivariateStructure = {
+    new UnivariateStructure(
       F = MatrixUtils.horizontalCat[Double](F, that.F),
       G = MatrixUtils.blockDiagonal[Double](Array(G, that.G)),
       W = MatrixUtils.blockDiagonal[Double](Array(W, that.W))
@@ -36,49 +39,52 @@ case class Structure(F: DenseMatrix[Double],
 
 }
 
-object Structure {
+object UnivariateStructure {
 
   /**
-    * Create a locally constance (underlying mean only) [[Structure]]
+    * Create a locally constance (underlying mean only) [[UnivariateStructure]]
     *
     * @param W The state's variance, `W > 0`
-    * @return A [[Structure]]
+    * @return A [[UnivariateStructure]]
     */
-  def createLocallyConstant(W: Double = 1.0): Structure = {
+  def createLocallyConstant(W: Double = 1.0): UnivariateStructure = {
 
-    new Structure(F = DenseMatrix.eye[Double](1),
-                  G = DenseMatrix.eye[Double](1),
-                  W = DenseMatrix.eye[Double](1) * W)
+    new UnivariateStructure(F = DenseMatrix.eye[Double](1),
+                            G = DenseMatrix.eye[Double](1),
+                            W = DenseMatrix.eye[Double](1) * W)
   }
 
   /**
-    * Create a locally linear (underlying mean and trend) [[Structure]]
+    * Create a locally linear (underlying mean and trend) [[UnivariateStructure]]
+    *
     * @param W The state's variance, `W > 0`
-    * @return A [[Structure]]
+    * @return A [[UnivariateStructure]]
     */
-  def createLocallyLinear(
-      W: DenseMatrix[Double] = DenseMatrix.eye[Double](2)): Structure = {
+  def createLocallyLinear(W: DenseMatrix[Double] = DenseMatrix.eye[Double](2))
+    : UnivariateStructure = {
     val F = DenseMatrix.zeros[Double](2, 1)
     F(0, 0) = 1
     val G = DenseMatrix.ones[Double](2, 2)
     G(1, 0) = 0
-    new Structure(F = F, G = G, W = W)
+    new UnivariateStructure(F = F, G = G, W = W)
 
   }
 
   /**
-    * Create a purely seasonal [[Structure]]
+    * Create a purely seasonal [[UnivariateStructure]]
     *
     * @param period The seasonality period
-    * @return A [[Structure]]
+    * @return A [[UnivariateStructure]]
     */
-  def createSeasonal(period: Int): Structure = {
+  def createSeasonal(period: Int): UnivariateStructure = {
     val F = DenseMatrix.zeros[Double](period - 1, 1)
     F(0, 0) = 1
     val G = DenseMatrix.zeros[Double](period - 1, period - 1)
     (0 until G.cols).foreach(n => G(0, n) = -1)
     (1 until G.rows).foreach(n => G(n, n - 1) = 1)
-    new Structure(F = F, G = G, W = DenseMatrix.eye[Double](period - 1))
+    new UnivariateStructure(F = F,
+                            G = G,
+                            W = DenseMatrix.eye[Double](period - 1))
   }
 
   /**
@@ -96,12 +102,13 @@ object Structure {
   }
 
   /**
-    * Create seasonal [[Structure]] using a Fourier representation
+    * Create seasonal [[UnivariateStructure]] using a Fourier representation
+    *
     * @param period The seasonality period
     * @param harmonics The number of Fourier harmonics
-    * @return A [[Structure]]
+    * @return A [[UnivariateStructure]]
     */
-  def createCyclical(period: Int, harmonics: Int): Structure = {
+  def createCyclical(period: Int, harmonics: Int): UnivariateStructure = {
     val om = 2.0 * Math.PI / period.toDouble
 
     val H1 = buildHarmonic(period, harmonic = 1)
@@ -119,6 +126,6 @@ object Structure {
     val F = DenseMatrix.zeros[Double](dim, 1)
     F(::, 0) := DenseVector[Double](
       Array.fill(harmonics)(Array(1.0, 0.0)).flatten)
-    new Structure(F = F, G = G, W = DenseMatrix.eye[Double](dim))
+    new UnivariateStructure(F = F, G = G, W = DenseMatrix.eye[Double](dim))
   }
 }

@@ -12,25 +12,23 @@
  * limitations under the License.
  */
 
-package org.ruivieira.ssm
+package org.ruivieira.ssm.univariate
 
 import breeze.linalg.DenseVector
 import breeze.numerics.exp
-import breeze.stats.distributions.{
-  Binomial,
-  Gaussian,
-  MultivariateGaussian,
-  Poisson
-}
+import breeze.stats.distributions.{Binomial, Gaussian, Multinomial, Poisson}
+import org.ruivieira.ssm.MathUtils
+import org.ruivieira.ssm.common.Structure
 
-object Generator {
+object UnivariateGenerator {
 
   /**
     * Generates an [[scala.Array]] representing continuous observations
     * provided by the generated states and structure
-    * @param states The state sequence, an [[Array]] of [[DenseVector]]
-    * @param structure The a [[org.ruivieira.ssm.Structure]] for this model
-    * @param V Observation's variance, [[scala.Double]], `V` > 0
+    *
+    * @param states    The state sequence, an [[Array]] of [[DenseVector]]
+    * @param structure The a [[org.ruivieira.ssm.univariate.UnivariateStructure]] for this model
+    * @param V         Observation's variance, [[scala.Double]], `V` > 0
     * @return [[scala.Array]] of observations
     */
   def gaussian(states: Array[DenseVector[Double]],
@@ -46,12 +44,13 @@ object Generator {
   /**
     * Generates an [[scala.Array]] representing discrete observations
     * provided by the generated states and structure
-    * @param states The state sequence, an [[Array]] of [[DenseVector]]
-    * @param structure The a [[org.ruivieira.ssm.Structure]] for this model
+    *
+    * @param states    The state sequence, an [[Array]] of [[DenseVector]]
+    * @param structure The a [[org.ruivieira.ssm.univariate.UnivariateStructure]] for this model
     * @return [[scala.Array]] of observations
     */
   def poisson(states: Array[DenseVector[Double]],
-              structure: Structure): Array[Int] = {
+              structure: UnivariateStructure): Array[Int] = {
 
     states.map { state =>
       val lambda = structure.F.t * state
@@ -63,20 +62,31 @@ object Generator {
   /**
     * Generates an [[scala.Array]] representing discrete (categorical) observations
     * provided by the generated states and structure
+    *
     * @param categories The number of categories (`categories = 1` represents binary observations)
-    * @param states The state sequence, an [[Array]] of [[DenseVector]]
-    * @param structure The a [[org.ruivieira.ssm.Structure]] for this model
+    * @param states     The state sequence, an [[Array]] of [[DenseVector]]
+    * @param structure  The a [[org.ruivieira.ssm.univariate.UnivariateStructure]] for this model
     * @return [[scala.Array]] of observations
     */
   def binomial(categories: Int,
                states: Array[DenseVector[Double]],
-               structure: Structure): Array[Int] = {
+               structure: UnivariateStructure): Array[Int] = {
 
     states.map { state =>
       val lambda = structure.F.t * state
       Binomial(n = categories, p = MathUtils.ilogit(lambda(0))).sample()
     }
 
+  }
+
+  def multinomial(n: Int,
+                  states: Array[DenseVector[Double]],
+                  structure: UnivariateStructure) = {
+
+    states.map { state =>
+      val lambda = (structure.F.t * state).map(MathUtils.ilogit)
+      Multinomial(lambda).sample(n)
+    }
   }
 
 }
