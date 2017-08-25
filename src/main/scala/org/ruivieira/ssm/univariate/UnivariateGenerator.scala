@@ -17,7 +17,7 @@ package org.ruivieira.ssm.univariate
 import breeze.linalg.DenseVector
 import breeze.numerics.exp
 import breeze.stats.distributions.{Binomial, Gaussian, Multinomial, Poisson}
-import org.ruivieira.ssm.MathUtils
+import org.ruivieira.ssm.{MathUtils, State}
 import org.ruivieira.ssm.common.Structure
 
 object UnivariateGenerator {
@@ -31,9 +31,9 @@ object UnivariateGenerator {
     * @param V         Observation's variance, [[scala.Double]], `V` > 0
     * @return [[scala.Array]] of observations
     */
-  def gaussian(states: Array[DenseVector[Double]],
+  def gaussian(states: Vector[State[Double]],
                structure: Structure,
-               V: Double): Array[Double] = {
+               V: Double): Vector[Double] = {
 
     states.map { state =>
       val lambda = structure.F.t * state
@@ -49,8 +49,8 @@ object UnivariateGenerator {
     * @param structure The a [[org.ruivieira.ssm.univariate.UnivariateStructure]] for this model
     * @return [[scala.Array]] of observations
     */
-  def poisson(states: Array[DenseVector[Double]],
-              structure: UnivariateStructure): Array[Int] = {
+  def poisson(states: Vector[State[Double]],
+              structure: UnivariateStructure): Vector[Int] = {
 
     states.map { state =>
       val lambda = structure.F.t * state
@@ -69,8 +69,8 @@ object UnivariateGenerator {
     * @return [[scala.Array]] of observations
     */
   def binomial(categories: Int,
-               states: Array[DenseVector[Double]],
-               structure: UnivariateStructure): Array[Int] = {
+               states: Vector[State[Double]],
+               structure: UnivariateStructure): Vector[Int] = {
 
     states.map { state =>
       val lambda = structure.F.t * state
@@ -80,7 +80,7 @@ object UnivariateGenerator {
   }
 
   def multinomial(n: Int,
-                  states: Array[DenseVector[Double]],
+                  states: Vector[State[Double]],
                   structure: UnivariateStructure) = {
 
     states.map { state =>

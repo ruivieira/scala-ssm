@@ -17,7 +17,7 @@ package org.ruivieira.ssm.multivariate
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.numerics.exp
 import breeze.stats.distributions._
-import org.ruivieira.ssm.MathUtils
+import org.ruivieira.ssm.{MathUtils, State}
 import org.ruivieira.ssm.common.Structure
 
 object MultivariateGenerator {
@@ -31,9 +31,9 @@ object MultivariateGenerator {
     * @param V         Observation's variance, [[scala.Double]], `V` > 0
     * @return [[scala.Array]] of observations
     */
-  def gaussian(states: Array[DenseVector[Double]],
+  def gaussian(states: Vector[State[Double]],
                structure: Structure,
-               V: DenseMatrix[Double]): Array[DenseVector[Double]] = {
+               V: DenseMatrix[Double]): Vector[DenseVector[Double]] = {
 
     states.map { state =>
       val lambda = structure.F.t * state
@@ -42,8 +42,8 @@ object MultivariateGenerator {
   }
 
   def multinomial(n: Int,
-                  states: Array[DenseVector[Double]],
-                  structure: Structure): Array[DenseVector[Int]] = {
+                  states: Vector[State[Double]],
+                  structure: Structure): Vector[DenseVector[Int]] = {
 
     states.map { state =>
       val lambda = (structure.F.t * state).map(MathUtils.ilogit)
@@ -51,8 +51,8 @@ object MultivariateGenerator {
     }
   }
 
-  def poisson(states: Array[DenseVector[Double]],
-              structure: Structure): Array[DenseVector[Int]] = {
+  def poisson(states: Vector[State[Double]],
+              structure: Structure): Vector[DenseVector[Int]] = {
 
     states.map { state =>
       val lambda = exp(structure.F.t * state)

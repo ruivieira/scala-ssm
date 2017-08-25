@@ -16,6 +16,7 @@ package org.ruivieira.ssm.univariate
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import breeze.stats.distributions.MultivariateGaussian
+import org.ruivieira.ssm.State
 import org.ruivieira.ssm.common.Structure
 
 object StateGenerator {
@@ -31,9 +32,9 @@ object StateGenerator {
     */
   def states(nobs: Int,
              structure: Structure,
-             state0: DenseVector[Double]): Array[DenseVector[Double]] = {
+             state0: State[Double]): Vector[State[Double]] = {
 
-    val states = Array.ofDim[DenseVector[Double]](nobs + 1)
+    val states = Array.ofDim[State[Double]](nobs + 1)
     states(0) = state0
 
     (1 to nobs).foreach { t =>
@@ -42,7 +43,8 @@ object StateGenerator {
     }
 
     // drop the state prior
-    states.drop(1)
+    // TODO: Make a recursive solution
+    states.drop(1).toVector
   }
 
   /**
@@ -58,10 +60,10 @@ object StateGenerator {
   def ar1(nobs: Int,
           alpha: Double,
           beta: Double,
-          state0: DenseVector[Double],
-          W: Double): Array[DenseVector[Double]] = {
+          state0: State[Double],
+          W: Double): Vector[State[Double]] = {
 
-    val states = Array.ofDim[DenseVector[Double]](nobs + 1)
+    val states = Array.ofDim[State[Double]](nobs + 1)
     val variance = DenseMatrix.eye[Double](1) * W
 
     states(0) = state0
@@ -71,7 +73,8 @@ object StateGenerator {
                                          covariance = variance).sample())
 
     // drop the state prior
-    states.drop(1)
+    // TODO: Make a recursive solution
+    states.drop(1).toVector
 
   }
 }

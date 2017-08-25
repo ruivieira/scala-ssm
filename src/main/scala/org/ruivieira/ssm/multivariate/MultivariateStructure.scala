@@ -14,10 +14,9 @@
 
 package org.ruivieira.ssm.multivariate
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.DenseMatrix
 import org.ruivieira.ssm.MatrixUtils
 import org.ruivieira.ssm.common.Structure
-import org.ruivieira.ssm.univariate.UnivariateStructure
 
 case class MultivariateStructure(F: DenseMatrix[Double],
                                  G: DenseMatrix[Double],
