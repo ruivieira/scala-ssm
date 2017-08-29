@@ -20,3 +20,4 @@ scala-ssm.ipr
 scala-ssm.iws
 .ensime_cache
 *.iml
+.ipynb_checkpoints
