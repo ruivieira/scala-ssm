@@ -19,3 +19,5 @@ enablePlugins(GhpagesPlugin)
 enablePlugins(SiteScaladocPlugin)
 
 git.remoteRepo := "git@github.com:ruivieira/scala-ssm.git"
+
+licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
