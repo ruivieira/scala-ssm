@@ -10,10 +10,16 @@ At the moment, supports:
 
 ## Installation
 
-To install the library locally you will need `sbt` and then simply run
+To install the library locally you will need `sbt` and then either download
+this repo and run
 
 ```
 sbt publishLocal
+```
+or add an `sbt` dependency as
+```scala
+resolvers += Resolver.bintrayRepo("ruivieira", "maven")
+libraryDependencies += "org.ruivieira" %% "scala-ssm" % "0.1.1"
 ```
 
 ## Examples
